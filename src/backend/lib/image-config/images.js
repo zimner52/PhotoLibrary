@@ -1,11 +1,6 @@
 /*
- * 图片导入管线：一次产出大图（Ori）+ 缩略图（Thumb）两份。
- * 手动添加、下载目录自动导入、按索引批量下载，三条路共用这里。
- *
- * Ori 的定位是「原图」：**不缩放**，只做一次轻压缩（ORI_QUALITY），
- * 「查看原图」直接开它；网格列表走小尺寸的 Thumb。
- *
- * 缩略图函数（原 thumbs.js）也并在这里：两份产物同源，放一起不用来回跳。
+ * 图片导入方法和写入数据库格式定义
+ * 图片导入：一次产出大图（Ori）+ 缩略图（Thumb）
  */
 const fs = require('fs')
 const path = require('path')
@@ -14,7 +9,6 @@ const { ORI_QUALITY, ORI_EFFORT, THUMB_SIZE, THUMB_QUALITY, THUMB_EFFORT } = req
 const { oriDir, thumbDir } = require('../folders/img-folders')
 const { readSourceInfo } = require('../downloads/source')
 
-// 不让 libvips 攥着文件句柄：Windows 上会出现「临时目录删不掉」（EPERM）
 sharp.cache({ files: 0 })
 
 /* -------------------------------- 缩略图 -------------------------------- */

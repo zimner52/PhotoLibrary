@@ -1,21 +1,6 @@
 /*
  * 下载来源（Mark of the Web）。
- *
- * Windows 给网络下载的文件挂了一个 NTFS 备用数据流 Zone.Identifier，形如：
- *   [ZoneTransfer]
- *   ZoneId=3
- *   ReferrerUrl=https://example.com/page
- *   HostUrl=https://cdn.example.com/photo.jpg      ← 文件真实下载地址
- * 只有 Chromium 系浏览器会写，Firefox 默认不写；非 NTFS 磁盘 / 手动「解除锁定」也会丢。
- *
- * 这里是**叶子模块**：只负责把那个流读出来，不写库、不通知界面。
- * 拿到来源之后怎么用，分在别处：
- *   · 延迟补抓  → downloads/watcher.js（导入时没抓到就隔几个时间点再试）
- *   · 启动回填  → main.js（给「缺来源、原文件还在」的旧记录补一次）
- *
- * ⚠️ 依赖方向：image-config/images.js 和 downloads/watcher.js 都 require 这里，
- * 所以本文件**只能** require 内置模块。一旦它去 require 依赖 images.js 的模块，
- * 就会出现 images.js → 本文件 → images.js 的环。
+ * 获取下载图片时的HostUrl
  */
 const fs = require('fs')
 const { execFile } = require('child_process')

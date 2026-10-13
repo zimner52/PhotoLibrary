@@ -23,16 +23,14 @@ const readConfig = () => {
     watchDir: defaultWatchDir(),
     watchEnabled: true,
     imagesDir: DEFAULT_IMG_DIR, // 图库根目录
-    folders: [], // 上一版的遗留字段，见 folders.readFolders() 的迁移逻辑
+    folders: [],
     ...saved,
   }
 }
 
+// 写入新目录
 const writeConfig = (patch) => {
   const next = { ...readConfig(), ...patch }
-  // 默认值不落盘：imagesDir 用空串表示「跟着 userData 走」（imagesRoot() 会回落到默认值）。
-  // 否则 userData 目录一旦改名（换 productName / 改 name / 换机器），配置里就会留下一条
-  // 指向旧路径的死值——应用照着它在一个没人用的目录里重建 Ori/Thumb，图库看着就「空了」。
   if (next.imagesDir === DEFAULT_IMG_DIR) next.imagesDir = ''
   fs.writeFileSync(CONFIG_PATH, JSON.stringify(next, null, 2))
   return next

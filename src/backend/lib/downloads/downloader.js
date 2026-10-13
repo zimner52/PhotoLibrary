@@ -1,10 +1,5 @@
 /*
  * 按「图片库索引.json」批量重新下载图片。
- * 与「打包图片」（image-config/zip.js）构成一次往返：那边导出 name + sourceUrl + referer，
- * 这边照着把图捞回来。典型用途是换机器、或图库被删之后照索引重建。
- *
- * ⚠️ 索引 json 是**不可信输入**（谁都能手改），所以每一项校验都必须在
- * 「把请求发出去」之前做完——见 downloadWithReferer 里的顺序。
  */
 const fs = require('fs')
 const path = require('path')

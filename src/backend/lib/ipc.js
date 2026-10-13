@@ -528,7 +528,6 @@ const registerIpc = () => {
       : await dialog.showOpenDialog(options)
     if (canceled || filePaths.length === 0) return configView()
 
-    // startWatcher 内部会重置去重记录，这里不用额外清
     const cfg = writeConfig({ watchDir: filePaths[0] })
     if (cfg.watchEnabled) startWatcher(cfg.watchDir)
     return configView()

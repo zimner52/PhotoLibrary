@@ -1,8 +1,6 @@
 /*
- * 目录布局迁移（一次性）。
- * 旧布局：<root>/<id>.webp、<root>/<文件夹>/<id>.webp
+ * 目录布局迁移。
  * 新布局：<root>/Ori/... + <root>/Thumb/...
- * 只做改名、不重新编码；缩略图全部留给 gallery:// 协议按需生成，所以迁移是秒级的。
  */
 const fs = require('fs')
 const path = require('path')

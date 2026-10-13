@@ -1,6 +1,6 @@
 /*
  * 用户文件夹。
- * 文件夹是磁盘上的真实目录：清单直接读 Ori/ 的子目录，Thumb/ 下保持同名镜像。
+ * 文件夹是磁盘上的真实目录。
  */
 const fs = require('fs')
 const path = require('path')
