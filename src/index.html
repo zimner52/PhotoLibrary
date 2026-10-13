@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片库</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/frontend/main.js"></script>
+  </body>
+  <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body, #app {
+          height: 100%;
+      }
+      body {
+          font-family: "Segoe UI Variable Text", "Segoe UI", "Microsoft YaHei UI",
+              "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", "Source Han Sans SC",
+              system-ui, -apple-system, Arial, sans-serif;
+          font-size: 14px;
+          line-height: 1.5;
+          color: #1f1d1b;
+          background: #dcd4ce; /* 米色底 */
+          overflow: hidden;
+          -webkit-font-smoothing: antialiased;
+          text-rendering: optimizeLegibility;
+          user-select: none; /* 桌面应用观感：默认不可选中文字 */
+      }
+      input,
+      textarea,
+      .selectable {
+          user-select: text;
+      }
+      button,
+      input,
+      textarea {
+          font-family: inherit;
+      }
+      /* 细滚动条（暖灰） */
+      ::-webkit-scrollbar {
+          width: 10px;
+          height: 10px;
+      }
+      ::-webkit-scrollbar-track {
+          background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+          background: #c6bdb5;
+          background-clip: content-box;
+          border: 3px solid transparent;
+          border-radius: 8px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+          background: #b0a69d;
+          background-clip: content-box;
+      }
+  </style>
+</html>

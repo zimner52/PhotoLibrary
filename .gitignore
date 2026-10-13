@@ -1,0 +1,29 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# 仓库根在这里（PhotoLibrary/），应用本体在 src/。
+# src/.gitignore 是 Vite 模板带的那份，只管得到 src/ 里面的东西；
+# 这份补的是「根目录这一层」会碰到的文件。
+# ─────────────────────────────────────────────────────────────────────────────
+
+# 依赖与构建产物（src/.gitignore 里已经有了，这里再兜一层：
+# 万一在根目录或别的地方执行了 npm install / vite build，也不会误提交）
+node_modules/
+dist/
+release/
+
+# 编辑器配置。想连 JetBrains 的运行配置一起提交，就把这行删掉——
+# .idea/ 自带的 .gitignore 会过滤掉 workspace.xml 之类的噪音
+.idea/
+
+# 系统垃圾
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+
+# 临时 / 备份文件
+*.log
+*.bak
+*.tmp
+*.orig
+*.rej
