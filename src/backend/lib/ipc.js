@@ -32,7 +32,7 @@ const {
   scanWatchDir,
   scheduleSourceRetry,
 } = require('./downloads/watcher')
-const { collectZipEntries, buildZip, writeManifest } = require('./image-config/zip')
+const { writeManifest, buildZip2 } = require('./image-config/zip')
 const { notifyImagesUpdated, notifyDownloadProgress } = require('./events')
 
 // 弹原生对话框（打开 / 保存 / 消息框）时优先挂在当前聚焦的窗口上。
@@ -457,7 +457,7 @@ const registerIpc = () => {
 
   /* ------------------------------- 打包 ZIP ------------------------------- */
 
-  // 把根目录整个打包成 ZIP（过程中会在根目录临时放一个索引 json，写完就删）
+  // 把根目录整个打包成 ZIP（过程中会在根目录临时放一个索引 json）
   ipcMain.handle('export-zip', async () => {
     const root = imagesRoot()
     if (!fs.existsSync(root)) return { ok: false, error: '保存目录不存在：' + root }
@@ -484,17 +484,14 @@ const registerIpc = () => {
 
     let manifestPath = ''
     try {
-      manifestPath = writeManifest(root) // 1. 根目录先新增索引 json
-      const entries = collectZipEntries(root) //    它会被一起收进压缩包
-      const buffer = buildZip(entries)
-      fs.writeFileSync(filePath, buffer) // 2. 输出压缩包
+      manifestPath = writeManifest(root) // 1. 根目录先新增索引 json（下面整目录打包时会一起收进去）
+      const size = await buildZip2(root, filePath)
       shell.showItemInFolder(filePath)
 
       return {
         ok: true,
         path: filePath,
-        files: entries.filter((entry) => !entry.dir && entry.fullPath !== manifestPath).length,
-        size: buffer.length,
+        size,
         manifest: path.basename(manifestPath),
       }
     } catch (err) {

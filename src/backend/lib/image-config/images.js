@@ -66,11 +66,7 @@ const importImageFile = async (srcPath, meta = {}) => {
     src: oriPath, // 原图：给「查看原图」用，也是缩略图路径的推导依据
     tags: [], // 用户标签（可多个）
     folder: '', // 所属文件夹，空字符串表示未分类
-    // 来源文件的绝对路径。跟「查看原图」无关（那个走 src），但有三个用途：
-    //   · 延迟补抓下载来源时，回去重读一次 Zone.Identifier
-    //   · 启动时回填缺来源的旧记录
-    //   · 手动扫描下载目录时按路径去重
-    sourcePath: srcPath,
+    sourcePath: srcPath, // 来源文件的绝对路径。
     sourceUrl: info.sourceUrl || source.sourceUrl || '', // 下载地址
     referrerUrl: info.referrerUrl || source.referrerUrl || '', // 来源页面
     importedAt: Date.now(),

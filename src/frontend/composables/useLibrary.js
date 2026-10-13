@@ -88,15 +88,13 @@ const folderCounts = computed(() => {
   return counts
 })
 
-// 全量标签（带使用次数），按热度排序
+// 全量标签（带使用次数）
 const allTags = computed(() => {
   const counter = new Map()
   for (const item of images.value) {
     for (const name of item.tags) counter.set(name, (counter.get(name) ?? 0) + 1)
   }
-  return [...counter.entries()]
-    .map(([name, count]) => ({ name, count }))
-    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'zh'))
+  return [...counter.entries()].map(([name, count]) => ({ name, count }))
 })
 
 // 搜索框过滤后的标签列表
