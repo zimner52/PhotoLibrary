@@ -30,12 +30,15 @@
 ### 环境要求
 
 - **Node.js** `^20.19.0 || >=22.12.0`。
+- **Windows**：打包走 NSIS 安装包；「下载来源」依赖 NTFS 的备用数据流，非 NTFS 磁盘上这个功能会失效（其余功能正常）。
 - 首次 `npm install` 要下载 `sharp` 的原生二进制与 Electron 发行包，需要联网。
 
 ### 安装与运行
 
+在**本 README 所在目录**（仓库根，package.json 在它下面的 `src/`）执行：
+
 ```sh
-cd PhotoLibrary/src
+cd src
 npm install
 npm start
 ```
