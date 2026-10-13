@@ -1,7 +1,8 @@
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 # 图片库 PhotoLibrary
 
-用于管理图片，支持添加、删除、修改图片。
+用于管理图片，支持添加、删除、修改图片。<br>
+Using for managing images, supporting adding, deleting, and modifying images.
 
 ## 目录
 
@@ -14,8 +15,12 @@
 - [开源协议](#开源协议)
 
 ## 项目说明
-项目主要是写来自用的，不保证代码的健壮性和安全性，但如果你在使用中发现了问题，欢迎提交 issue 或 pull request。
-未来可能会添加快捷下载方式然后把自动导入踢掉。
+项目主要是写来自用的，不保证代码的健壮性和安全性，但如果你在使用中发现了问题，欢迎提交 issue 或 pull request。<br>
+未来可能会添加快捷下载方式然后把自动导入踢掉。<br>
+This project is mainly written for personal use, and I do not guarantee the robustness and security of the code.
+But if you find any problems while using it, welcome to submit an issue or pull request.<br>
+In the future, I may add a quick download feature and get rid of the automatic import.<br>
+
 
 
 ## 功能
@@ -24,6 +29,10 @@
 - **标签**：一张图可以有多个标签。侧边栏按标签筛选（带使用次数），输入时用**空格分隔**可以连续添加。标签和分类筛选是叠加关系。
 - **打包图片**：把整个图库打成 ZIP，并在包里附一份只含 `name` / `sourceUrl` / `referer` 的索引 json。用于备份或换机器。
 - **下载图片**：选择打包图片产出的索引 json，按里面的地址 + referer 把图片**批量重新下载**入库。
+- **auto import**：Point the "Download directory" to the browser's download directory and turn on the switch. After that, images downloaded by the browser will be automatically compressed and stored. No manual addition is required. The default is the system download directory.
+- **tag**：One image can have multiple tags. Sidebar filters by tag (with usage count), and tags can be added continuously when inputting. The tag and category filters are cumulative relationships.\
+- **pack images**：Pack the entire library into a ZIP file, and include an index JSON file in the package that contains only `name` / `sourceUrl` / `referer`. Used for backup or switching machines.
+- **download images**：Select the index JSON file produced by the pack images feature, and download the images **batch re-download** based on the address and referer in the file.
 
 ## 用法
 
