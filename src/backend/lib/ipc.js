@@ -32,7 +32,7 @@ const {
   scanWatchDir,
   scheduleSourceRetry,
 } = require('./downloads/watcher')
-const { writeManifest, buildZip2 } = require('./image-config/zip')
+const { writeManifest, buildZip } = require('./image-config/zip')
 const { notifyImagesUpdated, notifyDownloadProgress } = require('./events')
 
 // 弹原生对话框（打开 / 保存 / 消息框）时优先挂在当前聚焦的窗口上。
@@ -485,7 +485,7 @@ const registerIpc = () => {
     let manifestPath = ''
     try {
       manifestPath = writeManifest(root) // 1. 根目录先新增索引 json（下面整目录打包时会一起收进去）
-      const size = await buildZip2(root, filePath)
+      const size = await buildZip(root, filePath)
       shell.showItemInFolder(filePath)
 
       return {

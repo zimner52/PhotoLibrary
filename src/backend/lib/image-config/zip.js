@@ -1,16 +1,16 @@
 /*
  * 打包 ZIP。
- * 未做 zip64，单文件与整包都需小于 4GB。
  */
 const fs = require('fs')
 const path = require('path')
-const archiver = require('archiver')
 const { readDB } = require('../db')
 const { uniquePath } = require('../folders/img-folders')
+const archiver = require('archiver')
 
 /* --------------------------------- 打包 --------------------------------- */
 
-const buildZip2 = (srcPath, outPath) => {
+const buildZip = async (srcPath, outPath) => {
+
   return new Promise((resolve, reject) => {
     const output = fs.createWriteStream(outPath)
     const archive = archiver('zip', { zlib: { level: 1 } })
@@ -51,4 +51,4 @@ const writeManifest = (rootDir) => {
   return target
 }
 
-module.exports = { writeManifest, buildZip2 }
+module.exports = { writeManifest, buildZip }

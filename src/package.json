@@ -17,7 +17,7 @@
     "format": "prettier --write frontend backend"
   },
   "dependencies": {
-    "archiver": "^8.0.0",
+    "archiver": "^7.0.0",
     "sharp": "^0.35.2"
   },
   "devDependencies": {
