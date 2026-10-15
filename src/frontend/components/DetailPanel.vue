@@ -46,8 +46,7 @@ const sourceHost = computed(() => {
   }
 })
 
-const noSourceHint =
-  '无法获取下载链接'
+const noSourceHint = '无法获取下载链接'
 
 const openSource = () => {
   const url = selectedItem.value?.sourceUrl
@@ -55,14 +54,17 @@ const openSource = () => {
 }
 
 // 换一张图时收起所有输入，并重置大图的失败状态
-watch(selectedItem, () => {
-  adding.value = false
-  draft.value = ''
-  picking.value = false
-  creatingFolder.value = false
-  newFolderName.value = ''
-  previewFailed.value = false
-})
+watch(
+  () => selectedItem.value?.id,
+  () => {
+    adding.value = false
+    draft.value = ''
+    picking.value = false
+    creatingFolder.value = false
+    newFolderName.value = ''
+    previewFailed.value = false
+  },
+)
 
 /* -------------------------------- 标签 -------------------------------- */
 
@@ -204,7 +206,9 @@ const handleDelete = async () => {
       <p class="source">
         <span class="source-label">来源</span>
         <template v-if="selectedItem.sourceUrl">
-          <span class="source-host selectable" :title="selectedItem.sourceUrl">{{ sourceHost }}</span>
+          <span class="source-host selectable" :title="selectedItem.sourceUrl">{{
+            sourceHost
+          }}</span>
           <button class="link-btn" @click="openSource">打开</button>
         </template>
         <span v-else class="source-none" :title="noSourceHint">未记录</span>
@@ -275,7 +279,7 @@ const handleDelete = async () => {
           v-model="draft"
           class="tag-input"
           type="text"
-          placeholder="空格分隔，回车确认，可连续输入"
+          placeholder="空格分隔，回车确认"
           @keydown.enter="commitTag"
           @keyup.esc="adding = false"
         />

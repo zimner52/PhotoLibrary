@@ -53,12 +53,10 @@ const downloadWithReferer = async (url, referrer, destDir) => {
   const u = new URL(url)
 
   // 白名单必须在发请求之前：先 fetch 再判断，等于门已经开了才上锁。
-  // file:// 尤其要紧——session.fetch 是真能把它读出内容的（实测能走到 res.ok）。
   if (u.protocol !== 'https:' && u.protocol !== 'http:') throw new Error('只支持 HTTP/HTTPS')
   if (isPrivateHost(u.hostname)) throw new Error('不允许访问私有地址')
 
-  // ↓ 调试用：暂时不发 Referer，看防盗链那边的错误码会不会变
-  // if (referrer) headers.Referer = referrer
+  if (referrer) headers.Referer = referrer
 
   const res = await session.defaultSession.fetch(url, {
     headers,

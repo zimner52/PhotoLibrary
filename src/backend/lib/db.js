@@ -2,12 +2,8 @@
 const fs = require('fs')
 const { DB_PATH } = require('./constants')
 
-// id → 记录 的内存索引。gallery:// 协议每张图都要查一次，不能每次读磁盘。
-let dbIndex = new Map()
-
-
-// 整表缓存
-let cache = null
+let dbIndex = new Map()  // id → 记录 的内存索引
+let cache = null  // 整表缓存
 
 const setIndex = (data) => {
   dbIndex = new Map(data.map((item) => [item.id, item]))
@@ -23,6 +19,7 @@ const readDB = (force = false) => {
     return setIndex([])
   }
 
+  // 验证缓存
   if (!force && cache && cache.mtimeMs === stat.mtimeMs && cache.size === stat.size) {
     return cache.data
   }
@@ -32,7 +29,12 @@ const readDB = (force = false) => {
     cache = { mtimeMs: stat.mtimeMs, size: stat.size, data }
     return setIndex(data)
   } catch (err) {
-    console.error('读取 db.json 失败，按空库处理:', err.message)
+    try {
+      fs.renameSync(DB_PATH, `${DB_PATH}.corrupt-${Date.now()}`)
+      console.error(`读取 db.json 失败，原文件已重命名并保存:`, err.message)
+    } catch(err) {
+      console.error('重命名 db.json 失败，文件可能已损坏:', err.message)
+    }
     cache = null
     return setIndex([])
   }
@@ -40,8 +42,32 @@ const readDB = (force = false) => {
 
 // 写入数据库（顺便刷新内存索引与缓存）
 const writeDB = (data) => {
-  fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2))
-  setIndex(data)
+  const json = JSON.stringify(data, null, 2)
+  const tmp = DB_PATH + '.tmp'
+  const fw = fs.openSync(tmp, 'w')
+
+  // 写入临时文件
+  try {
+    fs.writeFileSync(fw, json)
+    fs.fsyncSync(fw)
+  } finally {
+    fs.closeSync(fw)
+  }
+
+  // 替换原文件
+  try {
+    fs.renameSync(tmp, DB_PATH)
+  } catch (err) {
+    if (err.code !== 'EPERM' && err.code !== 'EBUSY') throw err
+    try {
+      fs.copyFileSync(tmp, DB_PATH)
+    } finally {
+      fs.unlinkSync(tmp)
+    }
+    console.warn('插入数据失败，使用备份文件:', err.message)
+  }
+
+  // 刷新缓存
   try {
     const stat = fs.statSync(DB_PATH)
     cache = { mtimeMs: stat.mtimeMs, size: stat.size, data }

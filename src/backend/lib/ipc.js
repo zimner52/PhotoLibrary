@@ -409,13 +409,17 @@ const registerIpc = () => {
       : await dialog.showOpenDialog(options)
     if (canceled || !filePaths.length) return { ok: false, canceled: true, imagesDir: currentRoot }
 
+    const fs_test = await fs.promises.opendir(filePaths[0])
+    const len = fs_test.read()
+    if (len !== null) return { ok: false, error: '只允许保存在空目录下' }
+    await fs_test.close()
+
     const nextRoot = filePaths[0]
     const withSep = (dir) => path.resolve(dir) + path.sep
-
     if (path.resolve(nextRoot) === path.resolve(currentRoot)) {
       return { ok: false, error: '新目录与当前保存目录相同', imagesDir: currentRoot }
     }
-    // 互相包含会导致「把目录搬进自己」，直接拒绝
+
     if (
       withSep(nextRoot).startsWith(withSep(currentRoot)) ||
       withSep(currentRoot).startsWith(withSep(nextRoot))

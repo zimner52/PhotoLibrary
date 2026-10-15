@@ -14,11 +14,29 @@ const defaultWatchDir = () => {
 
 const readConfig = () => {
   let saved = {}
+  let raw = null
+
   try {
-    if (fs.existsSync(CONFIG_PATH)) saved = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf-8'))
+    raw = fs.readFileSync(CONFIG_PATH, 'utf-8')
   } catch (err) {
-    console.error('读取配置失败，使用默认配置:', err.message)
+    if (err.code !== 'ENOENT') console.error('[config] 读取配置失败，用默认值:', err.message)
   }
+
+  if (raw != null) {
+    let parsed = null
+    try {
+      parsed = JSON.parse(raw)
+    } catch (err) {
+      try {
+        fs.renameSync(CONFIG_PATH, `${CONFIG_PATH}.corrupt-${Date.now()}`)
+        console.error('[config] 配置损坏，已留档为 .corrupt:', err.message)
+      } catch (e) {
+        console.error('[config] 配置损坏，留档失败（继续用默认值）:', e.message)
+      }
+    }
+    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) saved = parsed
+  }
+
   return {
     watchDir: defaultWatchDir(),
     watchEnabled: true,
@@ -28,11 +46,34 @@ const readConfig = () => {
   }
 }
 
-// 写入新目录
+// 写入新配置
 const writeConfig = (patch) => {
   const next = { ...readConfig(), ...patch }
   if (next.imagesDir === DEFAULT_IMG_DIR) next.imagesDir = ''
-  fs.writeFileSync(CONFIG_PATH, JSON.stringify(next, null, 2))
+
+  const json = JSON.stringify(next, null, 2)
+  const tmp = CONFIG_PATH + '.tmp'
+  const fw = fs.openSync(tmp, 'w')
+
+  // 写入临时文件
+  try {
+    fs.writeFileSync(fw, json)
+    fs.fsyncSync(fw)
+  } finally {
+    fs.closeSync(fw)
+  }
+
+  try {
+    fs.renameSync(tmp, CONFIG_PATH)
+  } catch (err) {
+    if (err.code !== 'EPERM' && err.code !== 'EBUSY') throw err
+    try {
+      fs.copyFileSync(tmp, CONFIG_PATH)
+    } finally {
+      fs.unlinkSync(tmp)
+    }
+    console.warn('更改配置失败', err.message)
+  }
   return next
 }
 

@@ -27,7 +27,7 @@ const normalizeTags = (item) => {
   return item.tag ? [item.tag] : []
 }
 
-// 只拉元数据，不碰图片文件——所以这个函数现在是毫秒级的
+// 只拉元数据，不碰图片文件
 const load = async () => {
   loading.value = true
   try {
@@ -49,9 +49,9 @@ const loadFolders = async () => {
 // 批量下载的进度：{ index, total, name, phase }，没有任务时为 null
 const downloadProgress = ref(null)
 
-// 订阅主进程的推送（只订阅一次）
+// 订阅主进程的推送
 const subscribe = () => {
-  if (unsubscribe) return
+  if (unsubscribe) return  // 防重复监听
   unsubscribe = window.electronAPI.onImagesUpdated(() => load())
 
   window.electronAPI.onImageSourceUpdated((payload) => {
@@ -180,7 +180,8 @@ const closeDetail = () => {
 // 保存标签
 const updateTags = async (id, tags) => {
   await window.electronAPI.updateImageTags({ id, tags })
-  await load()
+  const target = images.value.find((img) => img.id === id)
+  if (target) target.tags = tags
 }
 
 // 删除图片

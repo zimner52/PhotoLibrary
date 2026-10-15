@@ -44,12 +44,7 @@ const importImageFile = async (srcPath, meta = {}) => {
   }
 
   fs.mkdirSync(oriDir(), { recursive: true })
-  // 想给「解压炸弹」设上限的话，上限加在这里：
-  //   sharp(srcPath, { limitInputPixels: 50_000_000 })
-  // 注意 sharp 默认上限约 268MP，压到 50MP 会拒掉一部分合法大图（10000×7000 就超了），
-  // 而 Ori 的定位恰恰是「原图不缩放」，值要按你的图源定。
   await sharp(srcPath)
-    // 不 resize：Ori 就是原图，保留原始分辨率，只做一次轻压缩
     .webp({ quality: ORI_QUALITY, effort: ORI_EFFORT })
     .toFile(oriPath)
 

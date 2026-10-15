@@ -126,7 +126,7 @@ const scanWatchDir = async () => {
   if (!fs.existsSync(dir)) return { imported: 0, skipped: 0, error: '目录不存在：' + dir }
 
   const db = readDB()
-  const knownNames = new Set(db.map((i) => i.name))
+  const knownPath = new Set(db.map((i) => i.sourcePath))
   const added = []
   let imported = 0
   let skipped = 0
@@ -137,7 +137,7 @@ const scanWatchDir = async () => {
     const filePath = path.join(dir, name)
     const baseName = path.basename(name, path.extname(name))
 
-    if (knownNames.has(baseName)) {
+    if (knownPath.has(filePath)) {
       handledFiles.add(filePath)
       skipped++
       continue
