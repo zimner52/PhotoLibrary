@@ -1,10 +1,5 @@
 /*
  * gallery:// 自定义协议。
- *
- * 渲染进程只拼 URL（gallery://thumb/<id>、gallery://ori/<id>），由主进程把文件字节流
- * 交给 Chromium——于是它自己能流式读取、懒解码、回收滚出视口的位图，
- * 不必再把每张图读成 base64 塞进 JS。
- *
  * 注意：scheme 必须在 app ready 之前注册为 privileged，否则协议不生效。
  */
 const fs = require('fs')
@@ -35,17 +30,26 @@ const registerGalleryProtocol = () => {
       if (!id) return new Response('', { status: 400 })
 
       const item = getItem(id) // 内存索引，不读 db.json
-      if (!item) return new Response('', { status: 404 })
+      if (!item) {
+        console.warn('[protocol] 内存索引中找不到记录:', id)
+        return new Response('', { status: 404 })
+      }
 
       if (kind === 'ori') {
-        if (!item.src || !fs.existsSync(item.src)) return new Response('', { status: 404 })
+        if (!item.src || !fs.existsSync(item.src)) {
+          console.warn('[protocol] 原图文件不存在:', id, item.src)
+          return new Response('', { status: 404 })
+        }
         return net.fetch(pathToFileURL(item.src).toString())
       }
 
-      // 缩略图不存在就现场生成（老库迁移过来的、或 Thumb 被手动删过的）
+      // 缩略图不存在时兜底
       const thumbPath = thumbPathFor(item)
       if (!fs.existsSync(thumbPath)) {
-        if (!item.src || !fs.existsSync(item.src)) return new Response('', { status: 404 })
+        if (!item.src || !fs.existsSync(item.src)) {
+          console.warn('[protocol] 原图文件不存在，无法生成缩略图:', id, item.src)
+          return new Response('', { status: 404 })
+        }
         await writeThumb(item.src, thumbPath)
       }
       return net.fetch(pathToFileURL(thumbPath).toString())

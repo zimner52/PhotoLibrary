@@ -21,7 +21,7 @@ const readDB = (force = false) => {
 
   // 验证缓存
   if (!force && cache && cache.mtimeMs === stat.mtimeMs && cache.size === stat.size) {
-    return cache.data
+    return setIndex(cache.data)
   }
 
   try {
@@ -74,6 +74,8 @@ const writeDB = (data) => {
   } catch {
     cache = null
   }
+
+  setIndex(data)
 }
 
 // 按 id 取记录。索引内容来自最近一次 readDB / writeDB，调用前请确保已经读过库。
