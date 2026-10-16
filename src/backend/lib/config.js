@@ -1,4 +1,4 @@
-/* config.json：自动导入设置 + 当前图库根目录 */
+/* 用户可配置项的设置 */
 const fs = require('fs')
 const { app } = require('electron')
 const { CONFIG_PATH, DEFAULT_IMG_DIR } = require('./constants')

@@ -1,7 +1,7 @@
 {
   "name": "photolibrary",
   "productName": "PhotoLibrary",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": true,
   "license": "MIT",
   "author": "hei",
@@ -57,7 +57,8 @@
           ]
         }
       ],
-      "artifactName": "PhotoLibrary-Setup-${version}.${ext}"
+      "artifactName": "PhotoLibrary-Setup-${version}.${ext}",
+      "icon": "../assets/build/icon.png"
     },
     "nsis": {
       "oneClick": false,
