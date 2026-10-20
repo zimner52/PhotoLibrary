@@ -24,7 +24,7 @@ const THUMB_DIR_NAME = 'Thumb'
 
 /* ------------------------------- 图片参数 ------------------------------- */
 
-const ORI_QUALITY = 90
+const ORI_QUALITY = 80
 const ORI_EFFORT = 1
 
 const THUMB_SIZE = 320 // 缩略图最长边

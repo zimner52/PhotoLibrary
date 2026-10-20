@@ -52,7 +52,6 @@ const downloadWithReferer = async (url, referrer, destDir) => {
   const headers = {}
   const u = new URL(url)
 
-  // 白名单必须在发请求之前：先 fetch 再判断，等于门已经开了才上锁。
   if (u.protocol !== 'https:' && u.protocol !== 'http:') throw new Error('只支持 HTTP/HTTPS')
   if (isPrivateHost(u.hostname)) throw new Error('不允许访问私有地址')
 
@@ -79,6 +78,7 @@ const downloadWithReferer = async (url, referrer, destDir) => {
   return destPath
 }
 
+
 // 结束后导入图片
 const importFromManifest = async (manifestPath, onProgress) => {
   const db = readDB()
@@ -101,13 +101,11 @@ const importFromManifest = async (manifestPath, onProgress) => {
       )
       imported++
     } catch (err) {
-      // 弹窗里只有图片名（常常就是「1」「2」这种），看不出是哪个地址挂了，
-      // 所以把完整地址打到终端：npm start 那个窗口里能看到
       console.warn('[download] 下载失败:', entry.sourceUrl, '→', err.message)
       failed.push({ name: entry.name, error: err.message })
     }
   }
-  // 先落盘再清临时目录：清理失败也不能把这一批的成果丢掉
+
   writeDB(db)
   try {
     fs.rmSync(tmpDir, { recursive: true, force: true })

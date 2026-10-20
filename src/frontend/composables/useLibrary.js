@@ -27,19 +27,32 @@ const normalizeTags = (item) => {
   return item.tag ? [item.tag] : []
 }
 
+// 把 db 记录补成界面要的形状。全量与增量两条路必须共用这一个函数：
+const toRecord = (item) => ({
+  ...item,
+  tags: normalizeTags(item),
+  folder: typeof item.folder === 'string' ? item.folder : '',
+})
+
 // 只拉元数据，不碰图片文件
 const load = async () => {
   loading.value = true
   try {
     const list = await window.electronAPI.getImageList()
-    images.value = list.map((item) => ({
-      ...item,
-      tags: normalizeTags(item),
-      folder: typeof item.folder === 'string' ? item.folder : '',
-    }))
+    images.value = list.map(toRecord)
   } finally {
     loading.value = false
   }
+}
+
+// 批量入口（扫描 / 索引下载）一次带一整批，仍然只触发一次数组变更、一轮重渲染。
+const applyImagesEvent = (payload = {}) => {
+  if (payload.op !== 'add' || !payload.items?.length) return load()
+
+  // 去重：推送与「用户切文件夹触发的 load()」可能交错，重复 id 会让 v-for 出现重复 key
+  const known = new Set(images.value.map((item) => item.id))
+  const fresh = payload.items.filter((item) => item?.id && !known.has(item.id)).map(toRecord)
+  if (fresh.length) images.value.push(...fresh)
 }
 
 const loadFolders = async () => {
@@ -52,7 +65,7 @@ const downloadProgress = ref(null)
 // 订阅主进程的推送
 const subscribe = () => {
   if (unsubscribe) return  // 防重复监听
-  unsubscribe = window.electronAPI.onImagesUpdated(() => load())
+  unsubscribe = window.electronAPI.onImagesUpdated(applyImagesEvent)
 
   window.electronAPI.onImageSourceUpdated((payload) => {
     const target = images.value.find((item) => item.id === payload.id)
@@ -160,7 +173,20 @@ const changeRoot = async () => {
   return res
 }
 
-const exportZip = () => window.electronAPI.exportZip()
+const exporting = ref(false)
+
+// 打包选中的文件夹（'' = 未分类）；调用方保证 folders 非空
+const exportImages = async (folders) => {
+  if (exporting.value) return { ok: false, canceled: true }
+  exporting.value = true
+  try {
+    const res = await window.electronAPI.exportZip({ folders })
+    if (!res.ok && !res.canceled) window.alert(res.error)
+    return res
+  } finally {
+    exporting.value = false
+  }
+}
 
 // ---------------- 详情面板 ----------------
 
@@ -218,7 +244,8 @@ export const useLibrary = () => ({
   loadFolders,
   loadRoot,
   changeRoot,
-  exportZip,
+  exportImages,
+  exporting,
   subscribe,
   toggleTag,
   clearTagFilter,

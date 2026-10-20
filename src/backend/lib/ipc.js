@@ -32,7 +32,7 @@ const {
   scanWatchDir,
   scheduleSourceRetry,
 } = require('./downloads/watcher')
-const { writeManifest, buildZip } = require('./image-config/zip')
+const { selectItems, writeManifest, buildZip } = require('./image-config/zip')
 const { notifyImagesUpdated, notifyDownloadProgress } = require('./events')
 
 // 弹原生对话框（打开 / 保存 / 消息框）时优先挂在当前聚焦的窗口上。
@@ -74,6 +74,9 @@ const registerIpc = () => {
 
     writeDB(db)
     added.forEach(scheduleSourceRetry)
+    if (added.length) {
+      notifyImagesUpdated({ op: 'add', type: 'add', items: added, count: added.length })
+    }
     return added
   })
 
@@ -461,10 +464,21 @@ const registerIpc = () => {
 
   /* ------------------------------- 打包 ZIP ------------------------------- */
 
-  // 把根目录整个打包成 ZIP（过程中会在根目录临时放一个索引 json）
-  ipcMain.handle('export-zip', async () => {
+  // 只打包选中的文件夹（'' = 未分类）：包内保留 Ori/ 层级，另附一份同步过滤过的索引
+  ipcMain.handle('export-zip', async (event, scope = {}) => {
     const root = imagesRoot()
+    const folders = Array.isArray(scope.folders) ? scope.folders : []
+
+    if (!folders.length) return { ok: false, error: '请至少选择一个文件夹' }
+    const allowed = new Set(['', ...readFolders()])
+    if (folders.some((name) => !allowed.has(name))) {
+      return { ok: false, error: '文件夹参数不合法' }
+    }
     if (!fs.existsSync(root)) return { ok: false, error: '保存目录不存在：' + root }
+
+    // 排除空文件夹
+    const items = selectItems(folders)
+    if (!items.length) return { ok: false, error: '选中的文件夹里没有可打包的图片' }
 
     const pad = (n) => String(n).padStart(2, '0')
     const now = new Date()
@@ -488,20 +502,22 @@ const registerIpc = () => {
 
     let manifestPath = ''
     try {
-      manifestPath = writeManifest(root) // 1. 根目录先新增索引 json（下面整目录打包时会一起收进去）
-      const size = await buildZip(root, filePath)
+      // 根目录先新增索引 json（buildZip 会把它一起收进包）
+      manifestPath = writeManifest(root, items)
+      const size = await buildZip(filePath, items, manifestPath)
       shell.showItemInFolder(filePath)
 
       return {
         ok: true,
         path: filePath,
         size,
+        count: items.length,
         manifest: path.basename(manifestPath),
       }
     } catch (err) {
       return { ok: false, error: '打包失败：' + err.message }
     } finally {
-      // 3. 不管成没成，都只删自己刚写的那个临时索引
+
       if (manifestPath) {
         try {
           if (fs.existsSync(manifestPath)) fs.unlinkSync(manifestPath)

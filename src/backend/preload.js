@@ -21,7 +21,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // 保存目录 / 打包
   getImageRoot: () => ipcRenderer.invoke('get-image-root'),
   changeImageRoot: () => ipcRenderer.invoke('change-image-root'),
-  exportZip: () => ipcRenderer.invoke('export-zip'),
+  exportZip: (scope) => ipcRenderer.invoke('export-zip', scope),
   openImage: (target) => ipcRenderer.invoke('open-image', target),
 
   // 自动导入（监听下载目录）

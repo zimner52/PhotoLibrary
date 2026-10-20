@@ -75,7 +75,8 @@ const importFromWatchDir = async (fileName) => {
     db.push(item)
     writeDB(db)
     console.log('[watch] 已自动导入:', filePath)
-    notifyImagesUpdated({ type: 'auto-import', item })
+    // item 留着给 WatchSettings 显示名字，items 给图库做增量追加
+    notifyImagesUpdated({ op: 'add', type: 'auto-import', items: [item], item })
     scheduleSourceRetry(item) // 没抓到来源的话，后台再补几次
   } catch (err) {
     handledFiles.delete(filePath) // 失败后允许下次重试
@@ -157,7 +158,7 @@ const scanWatchDir = async () => {
 
   if (imported > 0) {
     writeDB(db)
-    notifyImagesUpdated({ type: 'scan', count: imported })
+    notifyImagesUpdated({ op: 'add', type: 'scan', items: added, count: imported })
     added.forEach(scheduleSourceRetry) // 没抓到来源的，后台再补几次
   }
   return { imported, skipped }

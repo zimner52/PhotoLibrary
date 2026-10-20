@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted } from 'vue'
 import DetailPanel from '@/components/DetailPanel.vue'
 import ImageCard from '@/components/ImageCard.vue'
 import WatchSettings from '@/components/WatchSettings.vue'
@@ -17,14 +17,15 @@ const {
   load,
   loadFolders,
   loadRoot,
-  exportZip,
+  exporting,
   importManifest,
   downloadProgress,
   subscribe,
   openDetail,
 } = useLibrary()
 
-const exporting = ref(false)
+const emit = defineEmits(['handleExport'])
+
 
 const heading = computed(() => {
   if (selectedTag.value) {
@@ -50,22 +51,10 @@ const emptyTitle = computed(() => {
   return '没有匹配的图片'
 })
 
-const handleAdd = async () => {
-  await window.electronAPI.addImages()
-  await load() // 刷新列表
-}
+// （避免同一批数据被读两遍；取消选择 / 全部导入失败时不会推送）
+const handleAdd = () => window.electronAPI.addImages()
 
-// 把根目录整个打包成 ZIP
-const handleExport = async () => {
-  if (exporting.value) return
-  exporting.value = true
-  try {
-    const res = await exportZip()
-    if (!res.ok && !res.canceled) window.alert(res.error)
-  } finally {
-    exporting.value = false
-  }
-}
+const handleExport = () => emit('handleExport', true)
 
 /* ------------------------------ 下载图片 ------------------------------ */
 

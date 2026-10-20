@@ -74,7 +74,6 @@ const writeDB = (data) => {
   } catch {
     cache = null
   }
-
   setIndex(data)
 }
 
